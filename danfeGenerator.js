@@ -95,13 +95,14 @@ export async function gerarDanfePDF(caminhoXml, chaveAcesso, caminhoSaidaPdf) {
 
       stream.on('finish', () => {
         console.log(`✅ DANFE PDF gerado com sucesso em: ${caminhoSaidaPdf}`);
-        resolve(true);
+        resolve(caminhoSaidaPdf);
+        // return caminhoSaidaPdf
       });
 
       stream.on('error', (err) => reject(err));
     });
   } catch (erro) {
-    console.error('Erro no danfeGenerator:', erro);
+      console.error('Erro no danfeGenerator:', erro);
     throw erro;
   }
 }

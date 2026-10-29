@@ -5,6 +5,10 @@ export const gerarDadosXMLNF = async function(dados){
     let xmlDanfe
     let xmlProdutos
     let idProduto = 0
+    let valorTotalProdutos = 0
+    let valorTotalNF = 0
+    let valorTotalICMS = 0
+    let icms18 = 18
 
     // 1. Estrutura nfeProc completa exigida pela biblioteca do DANFE
     let xmlEmitDest = `<?xml version="1.0" encoding="UTF-8"?>
@@ -67,7 +71,8 @@ export const gerarDadosXMLNF = async function(dados){
             <indIEDest>9</indIEDest>
         </dest>
         `
-    console.log(dados.produtos)
+    // console.log(dados.produtos)
+
     dados.produtos.forEach(function(produto){
         idProduto+=1
         xmlProdutos = xmlProdutos + `<det nItem="1">
@@ -79,8 +84,8 @@ export const gerarDadosXMLNF = async function(dados){
         <CFOP>5102</CFOP>
         <uCom>UN</uCom>
         <qCom>${produto.quantidade}</qCom>
-        <vUnCom>${produto.valor_unitario}</vUnCom>
-        <vProd>${produto.valor_unitario}</vProd>
+        <vUnCom>${produto.valor_unitario.toFixed(2)}</vUnCom>
+        <vProd>${produto.valor_produto_compra.toFixed(2)}</vProd>
         <cEANTrib>SEM GTIN</cEANTrib>
         <uTrib>UN</uTrib>
         <qTrib>1.0000</qTrib>
@@ -94,28 +99,52 @@ export const gerarDadosXMLNF = async function(dados){
             <orig>0</orig>
             <CST>00</CST>
             <modBC>3</modBC>
-            <vBC>150.00</vBC>
-            <pICMS>18.00</pICMS>
-            <vICMS>27.00</vICMS>
+            <vBC>0</vBC>
+            <pICMS>${icms18}</pICMS>
+            <vICMS>${icms18}</vICMS>
+            </ICMS00>
+        </ICMS>
+        </imposto>
+    </det>
+       `
+       
+       valorTotalProdutos = valorTotalProdutos + produto.valor_produto_compra
+    })
+
+    //Calculos de impostos
+    valorTotalICMS = valorTotalProdutos * (icms18/100)
+    
+    valorTotalNF = valorTotalProdutos + valorTotalICMS
+    valorTotalNF = Number(valorTotalNF).toFixed(2)
+
+    let xmlImposto = `<imposto>
+        <vTotTrib>0.00</vTotTrib>
+        <ICMS>
+            <ICMS00>
+            <orig>0</orig>
+            <CST>00</CST>
+            <modBC>3</modBC>
+            <vBC>${valorTotalProdutos.toFixed(2)}</vBC>
+            <pICMS>${icms18}</pICMS>
+            <vICMS>${icms18}</vICMS>
             </ICMS00>
         </ICMS>
         </imposto>
     </det>`
-    })
 
     
 
     let xmlTotal = `<total>
             <ICMSTot>
-            <vBC>150.00</vBC>
-            <vICMS>27.00</vICMS>
+            <vBC>${valorTotalProdutos.toFixed(2)}</vBC>
+            <vICMS>${icms18.toFixed(2)}</vICMS>
             <vICMSDeson>0.00</vICMSDeson>
             <vFCP>0.00</vFCP>
             <vBCST>0.00</vBCST>
             <vST>0.00</vST>
             <vFCPST>0.00</vFCPST>
             <vFCPSTRet>0.00</vFCPSTRet>
-            <vProd>150.00</vProd>
+            <vProd>${valorTotalProdutos.toFixed(2)}</vProd>
             <vFrete>0.00</vFrete>
             <vSeg>0.00</vSeg>
             <vDesc>0.00</vDesc>
@@ -125,7 +154,7 @@ export const gerarDadosXMLNF = async function(dados){
             <vPIS>0.00</vPIS>
             <vCOFINS>0.00</vCOFINS>
             <vOutro>0.00</vOutro>
-            <vNF>150.00</vNF>
+            <vNF>${valorTotalNF}</vNF>
             <vTotTrib>0.00</vTotTrib>
             </ICMSTot>
         </total>
@@ -154,7 +183,7 @@ export const gerarDadosXMLNF = async function(dados){
     </protNFe>
     </nfeProc>`
 
-    xmlDanfe = xmlEmitDest + xmlProdutos + xmlTotal
+    xmlDanfe = xmlEmitDest + xmlProdutos +  xmlTotal
 
     return xmlDanfe
 }

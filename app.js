@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { gerarDanfePDF } from './danfeGenerator.js'
 import { gerarDadosXMLNF} from './gerar_dados.js'
+import { converterPdfParaBase64 } from './gerar_base64.js'
 
 const app = express();
 app.use(express.json());
@@ -29,13 +30,16 @@ app.post('/api/nfe/processar-completo', async (req, res) => {
     fs.writeFileSync(xmlOutputPath, xmlBruto, 'utf-8');
 
     // 4. Gera o DANFE PDF
-    await gerarDanfePDF(xmlOutputPath, chaveAcesso, pdfOutputPath);
+    let caminhoPDF = await gerarDanfePDF(xmlOutputPath, chaveAcesso, pdfOutputPath);
+    let pdfBase64 = converterPdfParaBase64(caminhoPDF)
+    // console.log(arquivoBase64)
 
     return res.json({
       sucesso: true,
       mensagem: 'NF-e e DANFE PDF gerados com sucesso!',
       caminhoXml: xmlOutputPath,
-      caminhoPdf: pdfOutputPath
+      caminhoPdf: pdfOutputPath,
+      pdfBase64: `data:application/pdf;base64,${pdfBase64}`
     });
 
   } catch (error) {
