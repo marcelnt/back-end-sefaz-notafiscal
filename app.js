@@ -5,6 +5,8 @@ import { gerarDanfePDF } from './danfeGenerator.js'
 import { gerarDadosXMLNF} from './gerar_dados.js'
 import { converterPdfParaBase64 } from './gerar_base64.js'
 
+const PORT = process.env.PORT || 3000; 
+
 const app = express();
 app.use(express.json());
 
@@ -51,4 +53,4 @@ app.post('/api/nfe/processar-completo', async (req, res) => {
   }
 });
 
-app.listen(3000, () => console.log('🚀 Servidor rodando na porta 3000'));
+app.listen(PORT, () => console.log('🚀 Servidor rodando na porta 3000'));
