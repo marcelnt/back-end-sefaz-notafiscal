@@ -1,4 +1,5 @@
 import express from 'express'
+import cors from 'cors'; // 1. Importa o módulo CORS
 import fs from 'fs'
 import path from 'path'
 import { gerarDanfePDF } from './danfeGenerator.js'
@@ -7,7 +8,13 @@ import { converterPdfParaBase64 } from './gerar_base64.js'
 
 const PORT = process.env.PORT || 3000; 
 
+
+
 const app = express();
+
+// 2. Libera o CORS para qualquer origem/front-end
+app.use(cors());
+
 app.use(express.json());
 
 app.post('/api/nfe/processar-completo', async (req, res) => {
